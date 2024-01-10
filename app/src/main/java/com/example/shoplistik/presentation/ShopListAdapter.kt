@@ -8,68 +8,62 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoplistik.R
+import com.example.shoplistik.data.ShopListRepositoryImpl.shopList
 import com.example.shoplistik.domain.ShopItem
 
 class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
 
-    var count  = 0
-    class ShopItemViewHolder(val view: View) :
-        RecyclerView.ViewHolder(view) {   // этот класс как бы шаблон для по которму надо содовать Мшуц
-        val tvName = view.findViewById<TextView>(R.id.tv_name)
-        val tvCount = view.findViewById<TextView>(R.id.tv_count)
-    }
-
+    var count = 0
     var shopList = listOf<ShopItem>()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
-       Log.d("ShopListAdapter", "onCreateViewHolder, ${++count}" )
-        val view =
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.item_shop_disabled,
-                parent,
-                false
-            )
-        return ShopItemViewHolder(view)
+    class ShopItemViewHolder(val view: View) :
+        RecyclerView.ViewHolder(view) {   // этот класс как бы шаблон для по которму надо содовать Мшуц
+        val tvName = view.findViewById<TextView>(R.id.tv_name)
+        val tvCount = view.findViewById<TextView>(R.id.tv_count)
     }
 
-    override fun onBindViewHolder(
-        viewHolder: ShopItemViewHolder,
-        position: Int,
-    ) { // Заполняет существующие View
-        val shopItem = shopList[position]
 
-        val staus = if (shopItem.enable){
-            "Active"
-        } else{
-            "Not active"
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
+        Log.d("ShopListAdapter", "onCreateViewHolder, count: ${++count}")
+        val layout = when (viewType) {
+            VIEW_TYPE_DISABLED -> R.layout.item_shop_disabled
+            VIEW_TYPE_ENABLED -> R.layout.item_shop_enabled
+            else-> throw RuntimeException("Unkown view type: $viewType")
         }
+        val view= LayoutInflater.from(parent.context).inflate(layout,parent, false)
+        return ShopItemViewHolder(view)
+    }
+    override fun onBindViewHolder(viewHolder: ShopItemViewHolder, position: Int) { // Заполняет существующие View
+        val shopItem = shopList[position]
         viewHolder.view.setOnLongClickListener {
             true
         }
-        if (shopItem.enable){
-            viewHolder.tvName.text = "${shopItem.name} $staus"
-            viewHolder.tvCount.text = shopItem.count.toString()
-            viewHolder.tvName.setTextColor(ContextCompat.getColor(viewHolder.view.context, android.R.color.holo_red_light))
-        }
+        viewHolder.tvName.text = shopItem.name
+        viewHolder.tvCount.text = shopItem.count.toString()
     }
 
     override fun onViewRecycled(viewHolder: ShopItemViewHolder) {
         super.onViewRecycled(viewHolder)
-        viewHolder.tvName.text=""
-        viewHolder.tvCount.text=""
-        viewHolder.tvName.setTextColor(ContextCompat.getColor(viewHolder.view.context, android.R.color.white))
+        viewHolder.tvName.text = ""
+        viewHolder.tvCount.text = ""
+        viewHolder.tvName.setTextColor(
+            ContextCompat.getColor(
+                viewHolder.view.context,
+                android.R.color.white
+            )
+        )
     }
 
     override fun getItemViewType(position: Int): Int {
         val item = shopList[position]
-        return  if (item.enable){
-            0
+        return if (item.enable) {
+            VIEW_TYPE_ENABLED
         } else {
-            1
+            VIEW_TYPE_DISABLED
         }
     }
 
@@ -78,7 +72,10 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
     }
 
 
-    companion object{
-        const val VIEW_TYPE_ENABLED =100
+    companion object {
+        const val VIEW_TYPE_ENABLED = 100
+        const val VIEW_TYPE_DISABLED = 101
+        const val MAX_POOL_SIZE = 15
+
     }
 }
