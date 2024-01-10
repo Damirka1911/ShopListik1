@@ -2,15 +2,9 @@ package com.example.shoplistik.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoplistik.R
-import com.example.shoplistik.domain.ShopItem
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerVew()
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.shopList.observe(this) {
-            adapter.ShopList = it
+            adapter.shopList = it
         }
     }
     private fun setupRecyclerVew(){
