@@ -8,7 +8,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoplistik.R
-import com.example.shoplistik.data.ShopListRepositoryImpl.shopList
 import com.example.shoplistik.domain.ShopItem
 
 class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
@@ -19,7 +18,8 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
             field = value
             notifyDataSetChanged()
         }
-
+    var onShopItemLongClickListener: ((ShopItem)->Unit)?   = null
+    var onShopItemClickListener:((ShopItem)->Unit)?= null
     class ShopItemViewHolder(val view: View) :
         RecyclerView.ViewHolder(view) {   // этот класс как бы шаблон для по которму надо содовать Мшуц
         val tvName = view.findViewById<TextView>(R.id.tv_name)
@@ -40,7 +40,11 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
     override fun onBindViewHolder(viewHolder: ShopItemViewHolder, position: Int) { // Заполняет существующие View
         val shopItem = shopList[position]
         viewHolder.view.setOnLongClickListener {
+            onShopItemLongClickListener?.invoke(shopItem)
             true
+        }
+        viewHolder.view.setOnClickListener{
+            onShopItemClickListener?.invoke(shopItem)
         }
         viewHolder.tvName.text = shopItem.name
         viewHolder.tvCount.text = shopItem.count.toString()
@@ -70,8 +74,14 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
     override fun getItemCount(): Int {
         return shopList.size
     }
+interface OnShopItemLongClickListener{
+    fun onShopItemLongClick(shopItem: ShopItem)
+}
 
 
+  interface OnShopItemLongClikListener{
+      fun onShopItemLongClickListener(shopItem: ShopItem)
+  }
     companion object {
         const val VIEW_TYPE_ENABLED = 100
         const val VIEW_TYPE_DISABLED = 101
